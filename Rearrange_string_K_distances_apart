@@ -1,0 +1,79 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define ff first
+#define ss second
+#define pb push_back
+#define int long long int
+#define pii pair<int, int>
+#define rep(i, a, b) for (int i = a; i < b; i++)
+#define vi vector<int>
+#define mii unordered_map<int, int>
+#define MAX 2000002
+#define pqb priority_queue<int>
+#define pqs priority_queue<int, vi, greater<int>>
+#define setbits(x) __builtin_popcount(x)
+#define zrobits(x) __builtin_ctz(x)
+#define all(x) x.begin(), x.end()
+#define inf 1e18
+#define ps(x, y) fixed << setprecision(y) << x
+#define mk(arr, n, type) type *arr = new type[n];
+#define w(x)  \
+	int x;    \
+	cin >> x; \
+	while (x--)
+#define bakchodi                  \
+	ios_base::sync_with_stdio(0); \
+	cin.tie(0);                   \
+	cout.tie(0)
+
+typedef pair<int, char> pic;
+
+int32_t main()
+{
+	bakchodi;
+	string s;
+	cin >> s;
+	int k;
+	cin >> k;
+	int n = s.length();
+	unordered_map<char, int> m;
+	rep(i, 0, n)
+	{
+		m[s[i]]++;
+	}
+	priority_queue<pic> pq;
+	for (auto el : m)
+	{
+		pq.push({el.second, el.first});
+	}
+
+	string ans = "";
+	while (!pq.empty())
+	{
+		vector<pic> temp;
+		int d = min(k, n);
+		for (int i = 0; i < d; i++)
+		{
+			if (pq.empty())
+				break;
+			auto x = pq.top();
+			pq.pop();
+
+			int freq = x.first;
+			int c = x.second;
+			ans += c;
+			if (--freq > 0)
+				temp.push_back({freq, c});
+		}
+		for (auto el : temp)
+		{
+			pq.push({el.first, el.second});
+		}
+	}
+	if (ans.length() != n)
+		cout << "";
+	else
+		cout << ans;
+	cout << "\n";
+}

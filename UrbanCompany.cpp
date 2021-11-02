@@ -77,131 +77,89 @@ Example:
 For this answer is 11 14
 my solution
 
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
+#define M 1000000007
+#define inf 1e17 + 1
+#define pb push_back
+#define forz(i, s, n) for (lli i = s; i < n; i++)
+#define fore(i, n, s) for (lli i = n; i >= s; i--)
+#define binod                          \
+    ios_base ::sync_with_stdio(false); \
+    cin.tie(NULL);                     \
+    cout.tie(NULL);
 using namespace std;
-vector<int> A[100005];
-int st[100005],en[100005];
-int l=1;
-pair<int,int> seg[10][800005];
-void dfs(int u,int e)
+typedef long long int lli;
+typedef signed long long int slli;
+typedef pair<int, pair<int, int>> pii;
+
+lli dx[4] = {0, 1, 0, -1}, dy[4] = {1, 0, -1, 0};
+
+bool valid(lli x, lli y, lli n, lli m)
 {
-   st[u]=l++;
-  // pop.push_back(u);
-   for(int i=0;i<A[u].size();i++)
-   {
-      if(A[u][i]==e)
-      {
-         continue;
-      }
-      dfs(A[u][i],u);
-   }
-  // pop.push_back(u);
-   en[u]=l++;
-}
-void update(int curr,int val,int start, int end,int pos, int gg)
-{
-   if(start>pos||pos>end)
-   {
-      return;
-   }
-   if(start==end)
-   {
-      seg[gg][curr]={val,1};
-      return;
-   }
-   update(curr*2,val,start,(start+end)/2,pos,gg);
-   update(curr*2+1,val,(start+end)/2+1,end,pos,gg);
-   if(seg[gg][curr*2].first==seg[gg][curr*2+1].first)
-   {
-      seg[gg][curr]=seg[gg][curr*2];
-      seg[gg][curr].second+=seg[gg][curr*2+1].second;
-   }
-   else{
-      seg[gg][curr]=min(seg[gg][curr*2],seg[gg][curr*2+1]);
-   }
-}
-pair<int,int> get_ans(int curr, int start,int end, int l,int r,int gg)
-{
-  if(l<=start&&r>=end)
-  {
-     return seg[gg][curr];
-  }
-  else if(r<start||l>end)
-  {
-     return {2e9,0};
-  }
-  pair<int,int> a,b;
-  a=get_ans(curr*2,start,(start+end)/2,l,r,gg);
-  b=get_ans(curr*2+1,(start+end)/2+1,end,l,r,gg);
-  if(a.first==b.first)
-  {
-     return {a.first,a.second+b.second};
-  }
-  return min(a,b);
-}
-void solve()
-{
-  // pop.push_back(2e9);
-   int n,k,q;
-   cin>>n>>k>>q;
-   int B[n][k];
-   long long int mod=1e9+7;
-   for(int i=0;i<n;i++)
-   {
-      for(int j=0;j<k;j++)
-      {
-         cin>>B[i][j];
-      }
-   }
-   for(int i=0;i+1<n;i++)
-   {
-      int a,b;
-      cin>>a>>b;
-      A[a].push_back(b);
-      A[b].push_back(a);
-   }
-   dfs(1,-1);
-   for(int i=1;i<=n;i++)
-   {
-      for(int j=0;j<k;j++)
-      {
-         update(1,B[i-1][j],1,2*n,st[i],j);
-         update(1,B[i-1][j],1,2*n,en[i],j);
-      }
-   }
-   for(int i=0;i<q;i++)
-   {
-      int a1;
-      cin>>a1;
-      if(a1==1)
-      {
-         int bb;
-         cin>>bb;
-         long long int a=0,b=1;
-        
-         pair<int,int> kk;
-         for(int j=0;j<k;j++)
-         {
-            kk=get_ans(1,1,2*n,st[bb],en[bb],j);
-           // cout<<kk.second<<" ";
-            a+=kk.first;
-            b*=(kk.second/2);
-            b%=mod;
-         }
-         cout<<a<<" "<<b<<"\n";
-      }
-      else{
-         int a,b,c;
-         cin>>a>>b>>c;
-         update(1,c,1,2*n,en[a],b-1);
-         update(1,c,1,2*n,st[a],b-1);
-      }
-   }
+    return (x >= 0 and y >= 0 and x < n and y < m);
 }
 
-int main() {
+lli timer = 0, n, m,tot = 0, alice = 0, bob = 0;
+vector<bool> vis;
+vector<lli> sub, tin, low, a;
+void dfs(lli i, lli par, vector<vector<lli>> adj)
+{
+    tin[i] = timer;
+    timer++;
+    low[i] = tin[i];
+    vis[i] = 1;
+    sub[i] = a[i];
+    lli sw = tot - a[i], ma = 0, children = 0;
+    for (auto j : adj[i])
+    {
+        if (j == par)
+            continue;
+        low[i] = min(low[i], low[j]);
+        if (vis[j])
+            continue;
+        dfs(j, i, adj);
+        low[i] = min(low[i], low[j]);
+        sub[i] += sub[j];
+        if (low[j] < tin[i])
+            continue;
+        ma = max(ma, sub[j]);
+        sw -= sub[j];
+        ++children;
+    }
+    ma = max(ma, sw);
+    if ((par != -1 or children > 1) and alice < tot - ma - a[i])
+    {
+        alice = tot - ma - a[i];
+        bob = ma;
+    }
+}
 
-    ios::sync_with_stdio(0);
-    cin.tie(0);
-    solve();
+int main()
+{
+    binod;
+    cin >> n >> m;
+    vis.resize(n, 0);
+    tin.resize(n);
+    a.resize(n);
+    low.resize(n, INT_MAX);
+    sub.resize(n, 0);
+    forz(i, 0, n)
+    {
+        cin >> a[i];
+        tot += a[i];
+    }
+    vector<vector<lli>> adj(n);
+    forz(i, 0, m)
+    {
+        lli u, v;
+        cin >> u >> v;
+        u--, v--;
+        adj[u].pb(v);
+        adj[v].pb(u);
+    }
+
+    dfs(0, -1, adj);
+    cout << alice << " " << bob << "\n";
+
+    return 0;
 }
